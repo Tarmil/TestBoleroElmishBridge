@@ -39,7 +39,10 @@ type MyApp() =
     inherit ProgramComponent<Model, Message>()
 
     override this.Program =
-        let bridgeEndpoint = UriBuilder(this.NavigationManager.Uri, Scheme = "ws", Path = WebSocket.endpoint).ToString()
+        let bridgeEndpoint =
+            let bridgeEndpointBuilder = UriBuilder(this.NavigationManager.Uri, Path = WebSocket.endpoint)
+            bridgeEndpointBuilder.Scheme <- if bridgeEndpointBuilder.Scheme = "http" then "ws" else "wss"
+            bridgeEndpointBuilder.ToString()
         Program.mkProgram init update view
         |> Program.withBridgeConfig
                (Bridge.endpoint bridgeEndpoint
